@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stomach Support - Promotional Reel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;800;900&family=Inter:wght@300;400;600;700;800;900&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .reel {
+            width: 405px;
+            height: 720px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+            background: #030308;
+            box-shadow: 0 0 60px rgba(0, 200, 200, 0.15), 0 0 120px rgba(0, 100, 150, 0.08);
+            border: 1px solid rgba(0, 255, 255, 0.1);
+        }
+
+        /* ===== CANVAS BACKGROUNDS ===== */
+        #codeRainCanvas, #particleCanvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+        }
+        #particleCanvas { z-index: 1; }
+
+        /* ===== SCENE BASE ===== */
+        .scene {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            z-index: 10;
+            opacity: 0;
+            transform: scale(1);
+            pointer-events: none;
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .scene.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .scene.zoom-out {
+            opacity: 0;
+            transform: scale(1.5);
+            filter: blur(8px);
+        }
+        .scene.slide-out-left {
+            opacity: 0;
+            transform: translateX(-100%);
+        }
+        .scene.fade-out {
+            opacity: 0;
+        }
+
+        /* ===== OVERLAY GRADIENTS ===== */
+        .overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .overlay-dark {
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.85) 100%);
+        }
+        .overlay-red {
+            background: radial-gradient(ellipse at center, rgba(80,0,0,0.4) 0%, rgba(0,0,0,0.9) 100%);
+        }
+        .overlay-blue {
+            background: radial-gradient(ellipse at center, rgba(0,40,80,0.5) 0%, rgba(0,0,0,0.9) 100%);
+        }
+        .overlay-purple {
+            background: radial-gradient(ellipse at center, rgba(40,0,80,0.4) 0%, rgba(0,0,0,0.9) 100%);
+        }
+        .overlay-teal {
+            background: radial-gradient(ellipse at center, rgba(0,80,80,0.5) 0%, rgba(0,0,0,0.85) 100%);
+        }
+
+        /* ===== FONTS ===== */
+        .orbitron { font-family: 'Orbitron', sans-serif; }
+        .cairo { font-family: 'Cairo', sans-serif; }
+
+        /* ===== NEON GLOW ===== */
+        .glow-cyan {
+            text-shadow: 0 0 10px rgba(0,255,255,0.8), 0 0 30px rgba(0,255,255,0.5), 0 0 60px rgba(0,255,255,0.3);
+        }
+        .glow-white {
+            text-shadow: 0 0 10px rgba(255,255,255,0.9), 0 0 30px rgba(0,255,255,0.4), 0 0 60px rgba(0,255,255,0.2);
+        }
+        .glow-red {
+            text-shadow: 0 0 10px rgba(255,60,60,0.8), 0 0 30px rgba(255,0,0,0.4);
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes scalePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(80px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-80px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes typewriter {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        @keyframes blink {
+            50% { border-color: transparent; }
+        }
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            14% { transform: scale(1.15); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.1); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes rotateSlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(0,255,255,0.3); }
+            50% { box-shadow: 0 0 40px rgba(0,255,255,0.7), 0 0 80px rgba(0,255,255,0.3); }
+        }
+        @keyframes lineExpand {
+            from { width: 0; }
+            to { width: 80px; }
+        }
+        @keyframes countUp {
+            from { opacity: 0; transform: scale(0.5); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes flashIn {
+            0% { opacity: 0; transform: scale(3); filter: blur(20px); }
+            50% { opacity: 1; transform: scale(1); filter: blur(0); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .anim-fade-in-up { animation: fadeInUp 0.7s ease forwards; opacity: 0; }
+        .anim-fade-in-down { animation: fadeInDown 0.7s ease forwards; opacity: 0; }
+        .anim-fade-in { animation: fadeIn 0.6s ease forwards; opacity: 0; }
+        .anim-scale-in { animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; }
+        .anim-slide-right { animation: slideInRight 0.6s ease forwards; opacity: 0; }
+        .anim-slide-left { animation: slideInLeft 0.6s ease forwards; opacity: 0; }
+        .anim-heartbeat { animation: heartbeat 1.2s ease-in-out infinite; }
+        .anim-float { animation: float 3s ease-in-out infinite; }
+        .anim-flash { animation: flashIn 0.8s ease forwards; opacity: 0; }
+
+        .delay-1 { animation-delay: 0.3s; }
+        .delay-2 { animation-delay: 0.6s; }
+        .delay-3 { animation-delay: 0.9s; }
+        .delay-4 { animation-delay: 1.2s; }
+        .delay-5 { animation-delay: 1.5s; }
+        .delay-6 { animation-delay: 1.8s; }
+
+        /* ===== SCENE 1: LOGO ===== */
+        .logo-ss {
+            font-size: 100px;
+            font-weight: 900;
+            letter-spacing: 8px;
+            color: #fff;
+            position: relative;
+        }
+        .logo-ss span {
+            color: #00e5ff;
+        }
+        .logo-ring {
+            position: absolute;
+            width: 200px; height: 200px;
+            border: 3px solid rgba(0,255,255,0.2);
+            border-radius: 50%;
+            animation: rotateSlow 8s linear infinite;
+        }
+        .logo-ring::before {
+            content: '';
+            position: absolute;
+            top: -5px; left: 50%;
+            width: 10px; height: 10px;
+            background: #00e5ff;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #00e5ff;
+        }
+        .logo-ring-2 {
+            width: 240px; height: 240px;
+            border: 1px dashed rgba(0,255,255,0.15);
+            animation-direction: reverse;
+            animation-duration: 12s;
+        }
+
+        .project-title {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 6px;
+            color: white;
+        }
+        .project-subtitle {
+            font-size: 13px;
+            letter-spacing: 3px;
+            color: #00e5ff;
+            margin-top: 12px;
+            text-align: center;
+            line-height: 1.8;
+        }
+        .divider-line {
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00e5ff, transparent);
+            animation: lineExpand 0.8s ease forwards;
+            margin: 16px 0;
+        }
+
+        /* ===== SCENE 2: PROBLEM ===== */
+        .problem-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        .problem-text {
+            font-size: 20px;
+            color: #e0e0e0;
+            text-align: center;
+            line-height: 1.7;
+            font-weight: 400;
+        }
+        .problem-highlight {
+            font-size: 22px;
+            color: #ff6b6b;
+            font-weight: 700;
+            text-align: center;
+            margin-top: 16px;
+        }
+        .pulse-ring {
+            position: absolute;
+            width: 300px; height: 300px;
+            border: 2px solid rgba(255,60,60,0.15);
+            border-radius: 50%;
+            animation: scalePulse 2s ease-in-out infinite;
+        }
+
+        /* ===== SCENE 3: SOLUTION ===== */
+        .solution-icon-wrap {
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(0,229,255,0.15), rgba(0,100,200,0.1));
+            border: 2px solid rgba(0,229,255,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            margin-bottom: 24px;
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+        .solution-text {
+            font-size: 18px;
+            color: #ccc;
+            text-align: center;
+            line-height: 1.8;
+        }
+        .solution-highlight {
+            color: #00e5ff;
+            font-weight: 700;
+        }
+
+        /* ===== SCENE 4: FEATURES ===== */
+        .feature-card {
+            width: 90%;
+            padding: 16px 20px;
+            background: rgba(0,229,255,0.05);
+            border: 1px solid rgba(0,229,255,0.2);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 14px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+        .feature-card:hover {
+            border-color: rgba(0,229,255,0.5);
+            background: rgba(0,229,255,0.1);
+        }
+        .feature-icon {
+            width: 50px; height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #00e5ff22, #00e5ff11);
+            border: 1px solid rgba(0,229,255,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            flex-shrink: 0;
+        }
+        .feature-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            letter-spacing: 1px;
+        }
+        .feature-desc {
+            font-size: 11px;
+            color: #888;
+            margin-top: 3px;
+        }
+        .features-title {
+            font-size: 14px;
+            letter-spacing: 5px;
+            color: #00e5ff;
+            margin-bottom: 24px;
+            font-weight: 700;
+        }
+
+        /* ===== SCENE 5: GRADUATION ===== */
+        .grad-badge {
+            width: 90px; height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1a0040, #0a0025);
+            border: 2px solid rgba(138,43,226,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 45px;
+            margin-bottom: 24px;
+            box-shadow: 0 0 30px rgba(138,43,226,0.3);
+        }
+        .grad-text {
+            font-size: 18px;
+            color: #ddd;
+            text-align: center;
+            line-height: 1.8;
+            font-weight: 500;
+        }
+        .grad-highlight {
+            color: #c084fc;
+            font-weight: 800;
+        }
+        .grad-year {
+            font-size: 48px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #c084fc, #00e5ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-top: 16px;
+        }
+
+        /* ===== SCENE 6: FINALE ===== */
+        .finale-tagline {
+            font-size: 18px;
+            color: #aaa;
+            text-align: center;
+            line-height: 2;
+            letter-spacing: 2px;
+        }
+        .finale-brand {
+            font-size: 38px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: #fff;
+            margin-top: 20px;
+        }
+        .finale-glow-ring {
+            position: absolute;
+            width: 300px; height: 300px;
+            border: 2px solid rgba(0,229,255,0.1);
+            border-radius: 50%;
+            animation: scalePulse 3s ease-in-out infinite;
+        }
+        .finale-glow-ring-2 {
+            width: 350px; height: 350px;
+            animation-delay: 0.5s;
+            border-color: rgba(0,229,255,0.05);
+        }
+
+        /* ===== PROGRESS BAR ===== */
+        .progress-container {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 4px;
+            background: rgba(255,255,255,0.05);
+            z-index: 100;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00e5ff, #00bcd4);
+            width: 0;
+            box-shadow: 0 0 10px rgba(0,229,255,0.5);
+            transition: width 0.1s linear;
+        }
+
+        /* ===== TIME INDICATOR ===== */
+        .time-indicator {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            color: rgba(0,229,255,0.5);
+            z-index: 100;
+            letter-spacing: 2px;
+        }
+
+        /* ===== PLAY OVERLAY ===== */
+        .play-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 200;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(15px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: opacity 0.5s;
+        }
+        .play-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .play-btn {
+            width: 90px; height: 90px;
+            border-radius: 50%;
+            background: rgba(0,229,255,0.1);
+            border: 3px solid rgba(0,229,255,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+        .play-btn:hover {
+            background: rgba(0,229,255,0.2);
+            transform: scale(1.1);
+        }
+        .play-btn svg {
+            width: 30px; height: 30px;
+            fill: #00e5ff;
+            margin-left: 4px;
+        }
+        .play-label {
+            font-family: 'Orbitron', sans-serif;
+            color: #00e5ff;
+            font-size: 14px;
+            margin-top: 20px;
+            letter-spacing: 5px;
+            font-weight: 700;
+        }
+        .play-sub {
+            color: #555;
+            font-size: 11px;
+            margin-top: 8px;
+            letter-spacing: 2px;
+        }
+
+        /* ===== SOUND WAVES ===== */
+        .sound-waves {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            gap: 3px;
+            align-items: flex-end;
+            z-index: 100;
+            height: 20px;
+        }
+        .sound-wave {
+            width: 3px;
+            background: rgba(0,229,255,0.5);
+            border-radius: 2px;
+            animation: soundWave 0.8s ease-in-out infinite alternate;
+        }
+        @keyframes soundWave {
+            from { height: 4px; }
+            to { height: 18px; }
+        }
+        .sound-wave:nth-child(1) { animation-delay: 0s; }
+        .sound-wave:nth-child(2) { animation-delay: 0.1s; }
+        .sound-wave:nth-child(3) { animation-delay: 0.2s; }
+        .sound-wave:nth-child(4) { animation-delay: 0.15s; }
+        .sound-wave:nth-child(5) { animation-delay: 0.25s; }
+
+        /* ===== CORNER DECORATIONS ===== */
+        .corner-deco {
+            position: absolute;
+            width: 30px; height: 30px;
+            z-index: 5;
+        }
+        .corner-deco.tl { top: 12px; left: 12px; border-top: 2px solid rgba(0,229,255,0.25); border-left: 2px solid rgba(0,229,255,0.25); }
+        .corner-deco.tr { top: 12px; right: 12px; border-top: 2px solid rgba(0,229,255,0.25); border-right: 2px solid rgba(0,229,255,0.25); }
+        .corner-deco.bl { bottom: 12px; left: 12px; border-bottom: 2px solid rgba(0,229,255,0.25); border-left: 2px solid rgba(0,229,255,0.25); }
+        .corner-deco.br { bottom: 12px; right: 12px; border-bottom: 2px solid rgba(0,229,255,0.25); border-right: 2px solid rgba(0,229,255,0.25); }
+
+        /* ===== SCAN LINE ===== */
+        .scan-line {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(0,229,255,0.3), transparent);
+            z-index: 3;
+            animation: scanDown 4s linear infinite;
+        }
+        @keyframes scanDown {
+            from { top: 0; }
+            to { top: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="reel" id="reel">
+        <!-- Background Canvases -->
+        <canvas id="codeRainCanvas"></canvas>
+        <canvas id="particleCanvas"></canvas>
+
+        <!-- Decorations -->
+        <div class="overlay overlay-dark" id="mainOverlay"></div>
+        <div class="scan-line"></div>
+        <div class="corner-deco tl"></div>
+        <div class="corner-deco tr"></div>
+        <div class="corner-deco bl"></div>
+        <div class="corner-deco br"></div>
+
+        <!-- ========= SCENE 1: LOGO (0-5s) ========= -->
+        <div class="scene" id="scene1">
+            <div class="logo-ring anim-scale-in" style="position:absolute;"></div>
+            <div class="logo-ring logo-ring-2 anim-scale-in delay-1" style="position:absolute;"></div>
+            <div class="logo-ss orbitron anim-flash">S<span>S</span></div>
+            <div class="divider-line delay-2"></div>
+            <div class="project-title orbitron anim-fade-in-up delay-2">STOMACH<br>SUPPORT</div>
+            <p class="project-subtitle anim-fade-in delay-4">SMART EXPERT SYSTEM<br>FOR DIGESTIVE DISEASES</p>
+        </div>
+
+        <!-- ========= SCENE 2: PROBLEM (5-10s) ========= -->
+        <div class="scene" id="scene2">
+            <div class="pulse-ring"></div>
+            <div class="problem-icon anim-heartbeat">🩺</div>
+            <p class="problem-text anim-fade-in-up delay-1">
+                Millions suffer from<br>
+                <strong style="color:white;">digestive disorders</strong><br>
+                every day.
+            </p>
+            <p class="problem-highlight anim-fade-in-up delay-3 glow-red">
+                Finding the right guidance<br>isn't always easy.
+            </p>
+        </div>
+
+        <!-- ========= SCENE 3: SOLUTION (10-15s) ========= -->
+        <div class="scene" id="scene3">
+            <div class="solution-icon-wrap anim-scale-in anim-float">💡</div>
+            <h2 class="orbitron anim-fade-in-down delay-1" style="font-size:22px; color:#00e5ff; font-weight:800; margin-bottom:18px; letter-spacing:3px;">THE SOLUTION</h2>
+            <p class="solution-text anim-fade-in-up delay-2">
+                <span class="solution-highlight">Stomach Support</span> uses<br>
+                <strong style="color:white;">Expert System</strong> technology<br>
+                to analyze symptoms &<br>
+                provide recommendations.
+            </p>
+        </div>
+
+        <!-- ========= SCENE 4: FEATURES (15-20s) ========= -->
+        <div class="scene" id="scene4">
+            <div class="features-title orbitron anim-fade-in-down">⚙️&nbsp; FEATURES</div>
+
+            <div class="feature-card anim-slide-right delay-1">
+                <div class="feature-icon">🔮</div>
+                <div>
+                    <div class="feature-text">Disease Prediction</div>
+                    <div class="feature-desc">AI-powered disease forecasting</div>
+                </div>
+            </div>
+
+            <div class="feature-card anim-slide-left delay-2">
+                <div class="feature-icon">🔬</div>
+                <div>
+                    <div class="feature-text">Symptom Analysis</div>
+                    <div class="feature-desc">Comprehensive symptom evaluation</div>
+                </div>
+            </div>
+
+            <div class="feature-card anim-slide-right delay-3">
+                <div class="feature-icon">🎯</div>
+                <div>
+                    <div class="feature-text">Personalized Guidance</div>
+                    <div class="feature-desc">Tailored health recommendations</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========= SCENE 5: GRADUATION (20-25s) ========= -->
+        <div class="scene" id="scene5">
+            <div class="grad-badge anim-scale-in">🎓</div>
+            <p class="grad-text anim-fade-in-up delay-1">
+                Developed by<br>
+                <span class="grad-highlight">Computer Science Students</span>
+            </p>
+            <p class="grad-text anim-fade-in-up delay-2" style="margin-top:8px;">
+                Faculty of<br>
+                <span class="grad-highlight">Computers & Information</span>
+            </p>
+            <div class="grad-year orbitron anim-scale-in delay-3">2026</div>
+        </div>
+
+        <!-- ========= SCENE 6: FINALE (25-30s) ========= -->
+        <div class="scene" id="scene6">
+            <div class="finale-glow-ring" style="position:absolute;"></div>
+            <div class="finale-glow-ring finale-glow-ring-2" style="position:absolute;"></div>
+            <div style="font-size:60px; margin-bottom:16px;" class="anim-scale-in">🌍</div>
+            <p class="finale-tagline anim-fade-in-up delay-1">
+                Smarter Diagnosis.<br>
+                <strong style="color:white;">Better Healthcare.</strong>
+            </p>
+            <div class="divider-line delay-2" style="margin:20px 0;"></div>
+            <div class="finale-brand orbitron glow-cyan anim-flash delay-3">STOMACH<br>SUPPORT</div>
+            <p class="anim-fade-in delay-5" style="color:#00e5ff; font-size:12px; letter-spacing:4px; margin-top:16px; font-family:'Orbitron',sans-serif;">مشروع تخرج 2026</p>
+        </div>
+
+        <!-- Sound Wave Indicator -->
+        <div class="sound-waves" id="soundWaves" style="display:none;">
+            <div class="sound-wave"></div>
+            <div class="sound-wave"></div>
+            <div class="sound-wave"></div>
+            <div class="sound-wave"></div>
+            <div class="sound-wave"></div>
+        </div>
+
+        <!-- Time Indicator -->
+        <div class="time-indicator" id="timeIndicator">00:00</div>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <!-- Play Overlay -->
+        <div class="play-overlay" id="playOverlay">
+            <div class="play-btn">
+                <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+            </div>
+            <div class="play-label">PLAY REEL</div>
+            <div class="play-sub">30 SECONDS • WITH SOUND</div>
+        </div>
+    </div>
+
+    <script>
+        // ===== CODE RAIN CANVAS =====
+        const codeCanvas = document.getElementById('codeRainCanvas');
+        const codeCtx = codeCanvas.getContext('2d');
+
+        function resizeCanvas() {
+            const reel = document.getElementById('reel');
+            codeCanvas.width = reel.offsetWidth;
+            codeCanvas.height = reel.offsetHeight;
+            particleCanvas.width = reel.offsetWidth;
+            particleCanvas.height = reel.offsetHeight;
+        }
+        resizeCanvas();
+
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789{}[]()<>=+-*/&|!?;:.#$%@αβγδ∑∫∂π'.split('');
+        const fontSize = 14;
+        const columns = Math.floor(codeCanvas.width / fontSize);
+        const drops = Array(columns).fill(1);
+
+        let codeRainColor = { r: 0, g: 229, b: 255 };
+        let codeRainOpacity = 0.6;
+
+        function drawCodeRain() {
+            codeCtx.fillStyle = `rgba(3, 3, 8, 0.06)`;
+            codeCtx.fillRect(0, 0, codeCanvas.width, codeCanvas.height);
+            codeCtx.font = `${fontSize}px monospace`;
+
+            for (let i = 0; i < drops.length; i++) {
+                const char = chars[Math.floor(Math.random() * chars.length)];
+                const alpha = (0.3 + Math.random() * 0.7) * codeRainOpacity;
+                codeCtx.fillStyle = `rgba(${codeRainColor.r}, ${codeRainColor.g}, ${codeRainColor.b}, ${alpha})`;
+                codeCtx.fillText(char, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > codeCanvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        // ===== PARTICLE CANVAS =====
+        const particleCanvas = document.getElementById('particleCanvas');
+        const pCtx = particleCanvas.getContext('2d');
+        let particles = [];
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * particleCanvas.width;
+                this.y = Math.random() * particleCanvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.speedY = (Math.random() - 0.5) * 0.5;
+                this.opacity = Math.random() * 0.5 + 0.1;
+                this.color = Math.random() > 0.5 ? '0, 229, 255' : '255, 255, 255';
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0 || this.x > particleCanvas.width || this.y < 0 || this.y > particleCanvas.height) {
+                    this.reset();
+                }
+            }
+            draw() {
+                pCtx.beginPath();
+                pCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                pCtx.fillStyle = `rgba(${this.color}, ${this.opacity})`;
+                pCtx.fill();
+            }
+        }
+
+        for (let i = 0; i < 60; i++) particles.push(new Particle());
+
+        function drawParticles() {
+            pCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+        }
+
+        // ===== ANIMATION LOOP =====
+        let animRunning = true;
+        function animate() {
+            if (!animRunning) return;
+            drawCodeRain();
+            drawParticles();
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // ===== AUDIO ENGINE =====
+        let audioCtx;
+        let masterGain;
+
+        function initAudio() {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            masterGain = audioCtx.createGain();
+            masterGain.gain.value = 0.3;
+            masterGain.connect(audioCtx.destination);
+        }
+
+        function playKick(time) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(150, time);
+            osc.frequency.exponentialRampToValueAtTime(0.01, time + 0.5);
+            gain.gain.setValueAtTime(0.6, time);
+            gain.gain.exponentialRampToValueAtTime(0.001, time + 0.5);
+            osc.connect(gain);
+            gain.connect(masterGain);
+            osc.start(time);
+            osc.stop(time + 0.5);
+        }
+
+        function playHiHat(time) {
+            const bufferSize = audioCtx.sampleRate * 0.05;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+            const source = audioCtx.createBufferSource();
+            source.buffer = buffer;
+            const bandpass = audioCtx.createBiquadFilter();
+            bandpass.type = 'bandpass';
+            bandpass.frequency.value = 10000;
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.15, time);
+            gain.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
+            source.connect(bandpass);
+            bandpass.connect(gain);
+            gain.connect(masterGain);
+            source.start(time);
+        }
+
+        function playSynth(time, freq, duration) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.value = freq;
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 800;
+            filter.Q.value = 5;
+            gain.gain.setValueAtTime(0.08, time);
+            gain.gain.setValueAtTime(0.08, time + duration - 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(masterGain);
+            osc.start(time);
+            osc.stop(time + duration);
+        }
+
+        function playPad(time, duration) {
+            const freqs = [130.81, 164.81, 196.00, 261.63];
+            freqs.forEach(f => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = f;
+                gain.gain.setValueAtTime(0, time);
+                gain.gain.linearRampToValueAtTime(0.04, time + 0.5);
+                gain.gain.setValueAtTime(0.04, time + duration - 1);
+                gain.gain.linearRampToValueAtTime(0, time + duration);
+                osc.connect(gain);
+                gain.connect(masterGain);
+                osc.start(time);
+                osc.stop(time + duration);
+            });
+        }
+
+        function playMusic() {
+            const now = audioCtx.currentTime;
+            const bpm = 120;
+            const beat = 60 / bpm;
+            const totalBeats = 64;
+
+            // Pad
+            playPad(now, 15);
+            playPad(now + 15, 18);
+
+            for (let i = 0; i < totalBeats; i++) {
+                const t = now + i * beat;
+                // Kick on every beat
+                if (i % 4 === 0) playKick(t);
+                // Hi-hat on every half beat
+                playHiHat(t);
+                if (i % 2 === 1) playHiHat(t + beat * 0.5);
+                // Synth melody
+                if (i % 8 === 0) playSynth(t, 220, beat * 2);
+                if (i % 8 === 4) playSynth(t, 261.63, beat * 1.5);
+            }
+
+            // Transition hits
+            [5, 10, 15, 20, 25].forEach(sec => {
+                playKick(now + sec);
+                playKick(now + sec + 0.15);
+            });
+        }
+
+        // ===== SCENE MANAGEMENT =====
+        const scenes = [
+            { id: 'scene1', duration: 5000, overlay: 'overlay-dark',   rainColor: { r: 0, g: 229, b: 255 } },
+            { id: 'scene2', duration: 5000, overlay: 'overlay-red',    rainColor: { r: 255, g: 80, b: 80 } },
+            { id: 'scene3', duration: 5000, overlay: 'overlay-blue',   rainColor: { r: 0, g: 150, b: 255 } },
+            { id: 'scene4', duration: 5000, overlay: 'overlay-teal',   rainColor: { r: 0, g: 229, b: 200 } },
+            { id: 'scene5', duration: 5000, overlay: 'overlay-purple', rainColor: { r: 180, g: 100, b: 255 } },
+            { id: 'scene6', duration: 5000, overlay: 'overlay-dark',   rainColor: { r: 0, g: 229, b: 255 } }
+        ];
+
+        const totalDuration = scenes.reduce((sum, s) => sum + s.duration, 0);
+        let currentScene = 0;
+        let startTime = 0;
+        let isPlaying = false;
+        let progressInterval;
+
+        const overlay = document.getElementById('mainOverlay');
+        const progressBar = document.getElementById('progressBar');
+        const timeIndicator = document.getElementById('timeIndicator');
+        const soundWaves = document.getElementById('soundWaves');
+        const playOverlay = document.getElementById('playOverlay');
+
+        const exitClasses = ['zoom-out', 'slide-out-left', 'fade-out'];
+
+        function showScene(index) {
+            // Exit old scene
+            if (currentScene !== index) {
+                const oldEl = document.getElementById(scenes[currentScene].id);
+                const exitClass = exitClasses[index % exitClasses.length];
+                oldEl.classList.add(exitClass);
+                setTimeout(() => {
+                    oldEl.classList.remove('active', exitClass);
+                }, 600);
+            }
+
+            currentScene = index;
+            const scene = scenes[index];
+
+            // Update overlay
+            overlay.className = 'overlay ' + scene.overlay;
+
+            // Update code rain color smoothly
+            codeRainColor = scene.rainColor;
+
+            // Activate new scene
+            const el = document.getElementById(scene.id);
+            // Reset animations by re-adding elements
+            el.querySelectorAll('[class*="anim-"]').forEach(child => {
+                child.style.animation = 'none';
+                child.offsetHeight; // trigger reflow
+                child.style.animation = '';
+            });
+            el.classList.add('active');
+        }
+
+        function updateProgress() {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / totalDuration * 100, 100);
+            progressBar.style.width = progress + '%';
+
+            const seconds = Math.floor(elapsed / 1000);
+            const secs = seconds % 60;
+            timeIndicator.textContent = `00:${secs.toString().padStart(2, '0')}`;
+
+            if (elapsed >= totalDuration) {
+                endReel();
+            }
+        }
+
+        function playReel() {
+            isPlaying = true;
+            startTime = Date.now();
+            playOverlay.classList.add('hidden');
+            soundWaves.style.display = 'flex';
+
+            initAudio();
+            playMusic();
+
+            showScene(0);
+
+            let accumulated = 0;
+            for (let i = 1; i < scenes.length; i++) {
+                accumulated += scenes[i - 1].duration;
+                ((idx, time) => {
+                    setTimeout(() => {
+                        if (isPlaying) showScene(idx);
+                    }, time);
+                })(i, accumulated);
+            }
+
+            progressInterval = setInterval(updateProgress, 50);
+        }
+
+        function endReel() {
+            isPlaying = false;
+            clearInterval(progressInterval);
+            soundWaves.style.display = 'none';
+
+            setTimeout(() => {
+                document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
+                progressBar.style.width = '0%';
+                timeIndicator.textContent = '00:00';
+                playOverlay.classList.remove('hidden');
+                playOverlay.querySelector('.play-label').textContent = 'REPLAY';
+            }, 1500);
+        }
+
+        playOverlay.addEventListener('click', playReel);
+    </script>
+</body>
+</html>
