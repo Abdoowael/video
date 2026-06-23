@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stomach Support - Project Overview Reel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Fira+Code:wght@400;600&family=Orbitron:wght@500;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { margin: 0; padding: 0; background-color: #050505; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: 'Cairo', sans-serif; overflow: hidden; }
+        .reel-container { width: 405px; height: 720px; background: #020617; position: relative; overflow: hidden; box-shadow: 0 0 50px rgba(56, 189, 248, 0.25); border-radius: 20px; border: 2px solid #0f172a; }
+        
+        .grid-bg { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: linear-gradient(rgba(56, 189, 248, 0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(56, 189, 248, 0.15) 1px, transparent 1px); background-size: 30px 30px; opacity: 0.4; z-index: 0; perspective: 1000px; transform: scale(1.2) rotateX(10deg); animation: panGrid 15s linear infinite; }
+        @keyframes panGrid { 0% { transform: scale(1.2) rotateX(10deg) translateY(0); } 100% { transform: scale(1.2) rotateX(10deg) translateY(30px); } }
+        
+        .scene { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding: 24px; z-index: 10; transform: scale(0.95); }
+        .scene.active { opacity: 1; pointer-events: all; transform: scale(1); }
+        
+        .code-font { font-family: 'Fira Code', monospace; }
+        .tech-font { font-family: 'Orbitron', 'Cairo', sans-serif; }
+        .text-glow { text-shadow: 0 0 15px rgba(56, 189, 248, 0.6), 0 0 30px rgba(56, 189, 248, 0.4); }
+        .emerald-glow { text-shadow: 0 0 15px rgba(16, 185, 129, 0.6), 0 0 30px rgba(16, 185, 129, 0.4); }
+        
+        /* New Snappier Animations */
+        .fade-in-up { animation: fadeInUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; transform: translateY(40px); }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        
+        .zoom-in { animation: zoomIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; transform: scale(0.5); }
+        @keyframes zoomIn { to { opacity: 1; transform: scale(1); } }
+
+        .slide-in-right { animation: slideInRight 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; transform: translateX(50px); }
+        @keyframes slideInRight { to { opacity: 1; transform: translateX(0); } }
+
+        .slide-in-left { animation: slideInLeft 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; transform: translateX(-50px); }
+        @keyframes slideInLeft { to { opacity: 1; transform: translateX(0); } }
+
+        .flip-in-y { animation: flipInY 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; opacity: 0; transform: perspective(400px) rotateY(90deg); }
+        @keyframes flipInY { to { opacity: 1; transform: perspective(400px) rotateY(0deg); } }
+
+        .float-anim { animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+
+        .pulse-glow { animation: pulseGlow 2s infinite; }
+        @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); } 50% { box-shadow: 0 0 35px rgba(56, 189, 248, 0.8); } }
+
+        /* Timings */
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; }
+        .delay-4 { animation-delay: 0.8s; }
+        .delay-5 { animation-delay: 1.0s; }
+
+        .typewriter { overflow: hidden; white-space: nowrap; border-left: 3px solid #38bdf8; animation: typing 1.2s steps(40, end), blink 0.75s step-end infinite; }
+        @keyframes typing { from { width: 0 } to { width: 100% } }
+        @keyframes blink { 50% { border-color: transparent } }
+
+        .scan-line { position: absolute; width: 100%; height: 3px; background: rgba(56, 189, 248, 0.8); box-shadow: 0 0 15px #38bdf8, 0 0 30px #38bdf8; top: -10%; animation: scan 3s cubic-bezier(0.4, 0, 0.2, 1) infinite; z-index: 5; }
+        @keyframes scan { 0% { top: -10%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 110%; opacity: 0; } }
+
+        .progress-bar-container { position: absolute; bottom: 0; left: 0; right: 0; height: 5px; background: rgba(255,255,255,0.1); z-index: 50; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #0ea5e9, #38bdf8); width: 0%; box-shadow: 0 0 15px #38bdf8; float: right; }
+        #play-overlay { backdrop-filter: blur(12px); background: rgba(2, 6, 23, 0.85); }
+    </style>
+</head>
+<body>
+    <div class="reel-container" id="reel">
+        <div class="grid-bg"></div>
+        <div class="scan-line"></div>
+        
+        <!-- Scene 1: Introduction (3s) -->
+        <div class="scene active" id="scene-1">
+            <div class="w-full max-w-sm text-center">
+                <p class="code-font text-sky-400 text-sm mb-5 typewriter w-fit mx-auto" dir="ltr">> INIT_AI_SYSTEM...</p>
+                <div class="border-2 border-sky-500/40 bg-slate-900/80 p-8 rounded-2xl backdrop-blur-md zoom-in delay-1 pulse-glow shadow-2xl">
+                    <h1 class="tech-font text-white text-3xl leading-relaxed font-bold">
+                        <span class="text-sky-400 font-black tech-font text-4xl text-glow" dir="ltr">STOMACH<br>SUPPORT</span><br>
+                        <span class="text-emerald-400 text-xl font-bold mt-4 block">نظام خبير لتشخيص اضطرابات الجهاز الهضمي</span>
+                    </h1>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scene 2: Project Idea (4s) -->
+        <div class="scene" id="scene-2">
+            <div class="text-center w-full">
+                <div class="w-24 h-24 mx-auto bg-sky-500/20 rounded-full flex items-center justify-center mb-6 border-2 border-sky-400 zoom-in float-anim pulse-glow">
+                    <span class="text-5xl">💡</span>
+                </div>
+                <h2 class="text-4xl font-black text-sky-400 mb-6 slide-in-right delay-1 text-glow">فكرة المشروع</h2>
+                <div class="bg-gradient-to-br from-slate-900/90 to-slate-800/90 p-6 rounded-2xl border border-slate-600 slide-in-left delay-2 shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-full h-1 bg-gradient-to-l from-sky-400 to-emerald-400"></div>
+                    <p class="text-2xl text-slate-200 leading-loose font-bold">
+                        محاكاة <span class="text-emerald-400 text-glow">الخبرات البشرية</span> الطبية<br>
+                        بواسطة <span class="text-sky-400 text-glow">الذكاء الاصطناعي</span><br>
+                        لتقديم استشارات دقيقة وموثوقة
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scene 3: Goals Title (2s) -->
+        <div class="scene" id="scene-3">
+            <div class="flex flex-col items-center justify-center w-full h-full">
+                <div class="w-full bg-gradient-to-r from-sky-900/60 via-sky-800/60 to-sky-900/60 py-8 border-y-2 border-sky-400/50 backdrop-blur-lg text-center flip-in-y shadow-[0_0_40px_rgba(56,189,248,0.3)]">
+                    <h2 class="text-5xl font-black text-white text-glow tracking-widest mb-3">أهدافنا</h2>
+                    <p class="text-sky-300 text-2xl font-bold code-font tracking-widest" dir="ltr">OBJECTIVES</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scene 4: Goals List (5.5s) -->
+        <div class="scene items-start justify-center px-5" id="scene-4">
+            <div class="space-y-4 w-full text-lg font-bold text-slate-200">
+                <div class="flex items-center gap-4 slide-in-right bg-gradient-to-r from-slate-900/80 to-slate-800/80 p-4 rounded-xl border-r-4 border-sky-400 shadow-lg">
+                    <div class="w-10 h-10 rounded-full bg-sky-500/20 flex items-center justify-center text-sky-400 border border-sky-400 flex-shrink-0 text-xl font-black">1</div>
+                    <span>التشخيص المبكر وتقليل المضاعفات</span>
+                </div>
+                <div class="flex items-center gap-4 slide-in-left delay-1 bg-gradient-to-r from-slate-900/80 to-slate-800/80 p-4 rounded-xl border-r-4 border-emerald-400 shadow-lg">
+                    <div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 border border-emerald-400 flex-shrink-0 text-xl font-black">2</div>
+                    <span>تقليل احتمالية الخطأ البشري</span>
+                </div>
+                <div class="flex items-center gap-4 slide-in-right delay-2 bg-gradient-to-r from-slate-900/80 to-slate-800/80 p-4 rounded-xl border-r-4 border-purple-400 shadow-lg">
+                    <div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 border border-purple-400 flex-shrink-0 text-xl font-black">3</div>
+                    <span>توفير استشارات طبية دقيقة 24/7</span>
+                </div>
+                <div class="flex items-center gap-4 slide-in-left delay-3 bg-gradient-to-r from-slate-900/80 to-slate-800/80 p-4 rounded-xl border-r-4 border-yellow-400 shadow-lg">
+                    <div class="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-400 border border-yellow-400 flex-shrink-0 text-xl font-black">4</div>
+                    <span>تغطية جغرافية واسعة للمرضى</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scene 5: Target Audience Title (2s) -->
+        <div class="scene" id="scene-5">
+            <div class="text-center w-full zoom-in">
+                <div class="text-7xl mb-6 float-anim">🎯</div>
+                <h2 class="text-5xl font-black text-sky-400 mb-4 text-glow">الفئة المستهدفة</h2>
+                <p class="text-2xl text-slate-300 font-bold bg-slate-900/50 inline-block px-6 py-2 rounded-full border border-slate-700">لمن صُمم هذا النظام؟</p>
+            </div>
+        </div>
+
+        <!-- Scene 6: Target Audience Details (5s) -->
+        <div class="scene items-center justify-center w-full" id="scene-6">
+            <div class="flex flex-col gap-5 w-full px-5">
+                <!-- Patient -->
+                <div class="bg-gradient-to-l from-emerald-900/50 to-slate-900/90 p-5 rounded-2xl border border-emerald-500/40 flex items-center gap-5 flip-in-y shadow-lg hover:scale-105 transition-transform">
+                    <div class="text-5xl bg-emerald-500/20 p-3 rounded-full border border-emerald-400/50">👨‍⚕️</div>
+                    <div>
+                        <h3 class="text-emerald-400 font-black text-2xl mb-1 emerald-glow">المرضى</h3>
+                        <p class="text-slate-300 text-base leading-snug">تحديد الأعراض والحصول على تشخيص مبكر</p>
+                    </div>
+                </div>
+                
+                <!-- Doctor -->
+                <div class="bg-gradient-to-l from-sky-900/50 to-slate-900/90 p-5 rounded-2xl border border-sky-500/40 flex items-center gap-5 flip-in-y delay-1 shadow-lg hover:scale-105 transition-transform">
+                    <div class="text-5xl bg-sky-500/20 p-3 rounded-full border border-sky-400/50">🩺</div>
+                    <div>
+                        <h3 class="text-sky-400 font-black text-2xl mb-1 text-glow">الأطباء</h3>
+                        <p class="text-slate-300 text-base leading-snug">أداة مساعدة لدعم اتخاذ القرار الطبي الصائب</p>
+                    </div>
+                </div>
+
+                <!-- Admin -->
+                <div class="bg-gradient-to-l from-purple-900/50 to-slate-900/90 p-5 rounded-2xl border border-purple-500/40 flex items-center gap-5 flip-in-y delay-2 shadow-lg hover:scale-105 transition-transform">
+                    <div class="text-5xl bg-purple-500/20 p-3 rounded-full border border-purple-400/50">⚙️</div>
+                    <div>
+                        <h3 class="text-purple-400 font-black text-2xl mb-1" style="text-shadow: 0 0 10px rgba(168,85,247,0.5);">مسؤولو النظام</h3>
+                        <p class="text-slate-300 text-base leading-snug">إدارة السجلات الطبية وتحديث قاعدة المعرفة</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scene 7: Outro (2.5s) -->
+        <div class="scene" id="scene-7">
+            <div class="w-32 h-32 mb-6 zoom-in float-anim relative flex items-center justify-center">
+                <div class="absolute inset-0 border-4 border-sky-500/30 rounded-full animate-ping"></div>
+                <div class="w-24 h-24 bg-sky-500/20 border-2 border-sky-400 rounded-full flex items-center justify-center backdrop-blur-md">
+                    <span class="text-5xl">🌟</span>
+                </div>
+            </div>
+            <h1 class="tech-font text-4xl text-sky-400 text-glow font-black mb-6 zoom-in delay-1 text-center tracking-wider" dir="ltr">STOMACH SUPPORT</h1>
+            <div class="text-3xl text-white font-black fade-in-up delay-2 mt-2 text-center leading-relaxed bg-slate-900/60 p-4 rounded-xl border border-slate-700 w-full backdrop-blur-sm">
+                خطوتك الأولى نحو<br>
+                <span class="text-emerald-400 emerald-glow text-4xl mt-2 block">صحة هضمية أفضل</span>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progress"></div>
+        </div>
+        
+        <!-- Play Button Overlay -->
+        <div id="play-overlay" class="absolute inset-0 z-50 flex flex-col items-center justify-center cursor-pointer">
+            <div class="w-28 h-28 bg-sky-600/20 rounded-full flex items-center justify-center pl-2 text-sky-400 border-4 border-sky-500 text-6xl shadow-[0_0_40px_rgba(56,189,248,0.6)] transition-all hover:scale-110 hover:bg-sky-500/30 pulse-glow" dir="ltr">
+                ▶
+            </div>
+            <p class="text-sky-400 mt-8 text-3xl font-black text-glow tracking-wide">بدء العرض</p>
+        </div>
+    </div>
+
+    <script>
+        // Snappier Durations: Total 24s
+        const scenes = [
+            { id: 'scene-1', duration: 3000 },
+            { id: 'scene-2', duration: 4000 },
+            { id: 'scene-3', duration: 2000 },
+            { id: 'scene-4', duration: 5500 },
+            { id: 'scene-5', duration: 2000 },
+            { id: 'scene-6', duration: 5000 },
+            { id: 'scene-7', duration: 2500 }
+        ];
+        
+        const totalDuration = scenes.reduce((sum, s) => sum + s.duration, 0); // 24000ms
+
+        function playReel() {
+            document.getElementById('play-overlay').style.display = 'none';
+            
+            const progressBar = document.getElementById('progress');
+            progressBar.style.transition = `width ${totalDuration}ms linear`;
+            void progressBar.offsetWidth;
+            progressBar.style.width = '100%';
+
+            document.querySelectorAll('.scene').forEach(s => {
+                s.classList.remove('active');
+            });
+
+            document.getElementById(scenes[0].id).classList.add('active');
+
+            let accumulatedTime = 0;
+
+            for (let i = 1; i < scenes.length; i++) {
+                accumulatedTime += scenes[i-1].duration;
+                
+                setTimeout(() => {
+                    document.getElementById(scenes[i-1].id).classList.remove('active');
+                    const nextScene = document.getElementById(scenes[i].id);
+                    void nextScene.offsetWidth; 
+                    nextScene.classList.add('active');
+                }, accumulatedTime);
+            }
+            
+            setTimeout(() => {
+                const overlay = document.getElementById('play-overlay');
+                overlay.style.display = 'flex';
+                // Add a small pop animation to the overlay text
+                overlay.style.animation = 'none';
+                void overlay.offsetWidth;
+                overlay.style.animation = 'zoomIn 0.5s ease forwards';
+                
+                document.querySelector('#play-overlay p').innerText = "إعادة التشغيل";
+                progressBar.style.transition = 'none';
+                progressBar.style.width = '0%';
+            }, totalDuration + 500);
+        }
+
+        document.getElementById('play-overlay').addEventListener('click', playReel);
+    </script>
+</body>
+</html>
